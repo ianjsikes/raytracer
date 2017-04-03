@@ -1,3 +1,8 @@
+use point::Point;
+use vector::Vector3;
+use scene::{Scene, Sphere, Color};
+
+#[derive(Debug)]
 pub struct Ray {
   pub origin: Point,
   pub direction: Vector3,
@@ -35,3 +40,9 @@ impl Ray {
     }
   }
 }
+
+pub const BLACK: Color = Color {
+  red: 0.0,
+  green: 0.0,
+  blue: 0.0,
+};

@@ -1,4 +1,7 @@
+#[macro_use]
+extern crate serde_derive;
 extern crate image;
+extern crate serde;
 
 pub mod scene;
 pub mod vector;
@@ -8,19 +11,18 @@ mod rendering;
 use scene::Scene;
 use image::{DynamicImage, GenericImage, ImageBuffer, Rgba};
 
-use rendering::{Ray, cast_ray};
+use rendering::{Ray, Intersectable, BLACK};
 
 pub fn render(scene: &Scene) -> DynamicImage {
-  let mut image = DynamicImage::new_rgb8(scene.width, scene.height)
-  let black = Rgba::from_channels(0, 0, 0, 0);
+  let mut image = DynamicImage::new_rgb8(scene.width, scene.height);
   for x in 0..scene.width {
     for y in 0..scene.height {
       let ray = Ray::create_prime(x, y, scene);
 
       if scene.sphere.intersect(&ray) {
-        image.put_pixel(x, y, to_rgba(&scene.sphere.color))
+        image.put_pixel(x, y, scene.sphere.color.to_rgba())
       } else {
-        image.put_pixel(x, y, black);
+        image.put_pixel(x, y, BLACK.to_rgba());
       }
     }
   }
@@ -31,7 +33,12 @@ pub fn render_into(scene: &Scene, image: &mut ImageBuffer<Rgba<u8>, &mut [u8]>) 
   for y in 0..scene.height {
     for x in 0..scene.width {
       let ray = Ray::create_prime(x, y, scene);
-      image.put_pixel(x, y, cast_ray(scene, &ray, 0).to_rgba());
+
+      if scene.sphere.intersect(&ray) {
+        image.put_pixel(x, y, scene.sphere.color.to_rgba())
+      } else {
+        image.put_pixel(x, y, BLACK.to_rgba());
+      }
     }
   }
 }

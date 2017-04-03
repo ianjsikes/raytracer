@@ -1,4 +1,5 @@
 use std::ops::{Add, Sub, Mul, Neg};
+use serde::{Deserialize, Deserializer};
 
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct Vector3 {
@@ -109,7 +110,7 @@ impl Mul<Vector3> for f64 {
   }
 }
 
-impl Neg for f64 {
+impl Neg for Vector3 {
   type Output = Vector3;
 
   fn neg(self) -> Vector3 {

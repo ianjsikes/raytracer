@@ -5,3 +5,5 @@ authors = ["Ian J Sikes <ianjsikes@gmail.com>"]
 
 [dependencies]
 image = "0.12.3"
+serde = "0.9.7"
+serde_derive = "0.9.7"
