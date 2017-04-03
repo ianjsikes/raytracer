@@ -56,3 +56,22 @@ pub struct Scene {
   pub fov: f64,
   pub sphere: Sphere,
 }
+impl Scene {
+  pub fn trace(&self, ray: &Ray) -> Option<Intersection> {
+    self.spheres
+      .iter()
+      .filter_map(|s| s.intersect(ray).map(|d| Intersection::new(d, s)))
+      .min_by(|i1, i2| i1.distance.partial_cmp(&i2.distance).unwrap())
+  }
+}
+
+pub struct Intersection<'a> {
+  pub distance: f64,
+  pub object: &'a Sphere,
+}
+impl<'a> Intersection<'a> {
+  pub fn new<'b>(distance: f64, object: &'b Sphere) -> Intersection<'b> {
+    distance: distance,
+    object: object,
+  }
+}
