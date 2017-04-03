@@ -39,4 +39,29 @@ impl Add<Point> for Vector3 {
 impl Sub<Vector3> for Point {
   type Output = Point;
   
+  fn sub(self, other: Vector3) -> Point {
+    Point {
+      x: self.x - other.x,
+      y: self.y - other.y,
+      z: self.z - other.z,
+    }
+  }
+}
+impl Sub<Point> for Vector3 {
+  type Output = Point;
+
+  fn sub(self, other: Point) -> Point {
+    other - self
+  }
+}
+impl Sub<Point> for Point {
+  type Output = Vector3;
+
+  fn sub(self, other: Point) -> Vector3 {
+    Vector3 {
+      x: self.x - other.x,
+      y: self.y - other.y,
+      z: self.z - other.z,
+    }
+  }
 }
