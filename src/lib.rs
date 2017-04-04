@@ -8,10 +8,10 @@ pub mod vector;
 pub mod point;
 mod rendering;
 
-use scene::{Scene, Intersection, Color};
+use scene::{Scene};
 use image::{DynamicImage, GenericImage, ImageBuffer, Rgba};
 
-use rendering::{Ray, BLACK, Intersectable, cast_ray};
+use rendering::{Ray, cast_ray};
 
 pub fn render(scene: &Scene) -> DynamicImage {
   let mut image = DynamicImage::new_rgb8(scene.width, scene.height);

@@ -1,28 +1,58 @@
 {
-  "width": 1600,
-  "height": 1200,
+  "width": 800,
+  "height": 600,
   "fov": 90.0,
   "max_recursion_depth": 10,
   "shadow_bias": 0.000001,
-  "light": {
-    "direction": {
-      "x": 0.0,
-      "y": -0.3,
-      "z": -1.0
-    },
-    "color": {
-      "red": 1.0,
-      "green": 1.0,
-      "blue": 1.0
-    },
-    "intensity": 3.0
-  },
+  "lights": [
+    { "Directional": {
+      "direction": {
+        "x": 0.0,
+        "y": -0.4,
+        "z": -1.0
+      },
+      "color": {
+        "red": 1.0,
+        "green": 1.0,
+        "blue": 1.0
+      },
+      "intensity": 10.0
+    }},
+
+    {"Directional": {
+      "direction": {
+        "x": 0.4,
+        "y": -0.2,
+        "z": -1.0
+      },
+      "color": {
+        "red": 1.0,
+        "green": 0.6,
+        "blue": 0.4
+      },
+      "intensity": 3.0
+    }},
+
+    {"Spherical": {
+      "position": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": -3.7
+      },
+      "color": {
+        "red": 0.2,
+        "green": 0.9,
+        "blue": 0.4
+      },
+      "intensity": 150.0
+    }}
+  ],
   "elements": [
     {
       "Sphere": {
         "center": {
           "x": 0.0,
-          "y": 0.0,
+          "y": 0.5,
           "z": -5.0
         },
         "radius": 1.0,
@@ -45,8 +75,8 @@
         "radius": 2.0,
         "color": {
           "red": 1.0,
-          "green": 0.7,
-          "blue": 0.9
+          "green": 0.4,
+          "blue": 0.5
         },
         "albedo": 0.38
       }
@@ -61,8 +91,8 @@
         },
         "radius": 1.8,
         "color": {
-          "red": 0.4,
-          "green": 0.3,
+          "red": 0.2,
+          "green": 0.1,
           "blue": 0.9
         },
         "albedo": 0.68

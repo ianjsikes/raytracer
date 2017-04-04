@@ -122,17 +122,33 @@ pub fn cast_ray(scene: &Scene, ray: &Ray, depth: u32) -> Color {
 // }
 
 fn get_color(scene: &Scene, ray: &Ray, intersection: &Intersection) -> Color {
+  let mut color = BLACK;
+  for light in &scene.lights {
     let hit_point = ray.origin + (ray.direction * intersection.distance);
     let surface_normal = intersection.object.surface_normal(&hit_point);
-    let direction_to_light = -scene.light.direction.normalize();
-    let light_power = (surface_normal.dot(&direction_to_light) as f32).max(0.0) *
-                      scene.light.intensity;
-    let light_reflected = intersection.object.albedo() / PI;
-    // let light_reflected = intersection.object.albedo() / std::f32::consts::PI;
+    let direction_to_light = light.direction_from(&hit_point);
 
-    let color = intersection.object.color().clone() * scene.light.color.clone() * light_power *
-                light_reflected;
-    color.clamp()
+    let shadow_ray = Ray {
+      origin: hit_point + (surface_normal * scene.shadow_bias),
+      direction: direction_to_light,
+    };
+    let shadow_intersection = scene.trace(&shadow_ray);
+    let in_light = shadow_intersection.is_none() ||
+                   shadow_intersection.unwrap().distance > light.distance(&hit_point);
+
+    let light_intensity = if in_light {
+      light.intensity(&hit_point)
+    } else {
+      0.0
+    };
+    let light_power = (surface_normal.dot(&direction_to_light) as f32).max(0.0) *
+                      light_intensity;
+    let light_reflected = intersection.object.albedo() / PI;
+
+    let light_color = intersection.object.color().clone() * light.color() * light_power * light_reflected;
+    color = color + light_color;
+  }
+  color.clamp()
 }
 
 // fn shade_diffuse(scene: &Scene,
