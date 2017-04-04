@@ -93,6 +93,19 @@ pub struct Light {
   pub color: Color,
   pub intensity: f32,
 }
+impl Light {
+  pub fn direction_from(&self, hit_point: &Point) -> Vector3 {
+    -self.direction
+  }
+  
+  pub fn distance(&self, hit_point: &Point) -> f64 {
+    ::std::f64::INFINITY
+  }
+
+  pub fn intensity(&self, hit_point: &Point) -> f32 {
+    self.intensity
+  }
+}
 
 
 #[derive(Deserialize, Debug)]
@@ -141,8 +154,11 @@ pub struct Scene {
   pub width: u32,
   pub height: u32,
   pub fov: f64,
+  pub max_recursion_depth: u32,
+  pub shadow_bias: f64,
   pub elements: Vec<Element>,
   pub light: Light,
+  // pub lights: Vec<Light>,
 }
 impl Scene {
   pub fn trace(&self, ray: &Ray) -> Option<Intersection> {
