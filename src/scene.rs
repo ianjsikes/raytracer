@@ -1,5 +1,8 @@
 use point::Point;
+use vector::Vector3;
+use rendering::{Intersectable, Ray};
 use image::{Rgba, Pixel};
+
 
 const GAMMA: f32 = 2.2;
 
@@ -10,6 +13,7 @@ fn gamma_encode(linear: f32) -> f32 {
 fn gamma_decode(encoded: f32) -> f32 {
   encoded.powf(GAMMA)
 }
+
 
 #[derive(Deserialize, Debug, Clone, Copy)]
 pub struct Color {
@@ -42,6 +46,16 @@ impl Color {
   }
 }
 
+
+#[derive(Deserialize, Debug)]
+pub struct Plane {
+  pub origin: Point,
+  #[serde(deserialize_with="Vector3::deserialize_normalized")]
+  pub normal: Vector3,
+  pub color: Color,
+}
+
+
 #[derive(Deserialize, Debug)]
 pub struct Sphere {
   pub center: Point,
@@ -49,29 +63,55 @@ pub struct Sphere {
   pub color: Color,
 }
 
+
+#[derive(Deserialize, Debug)]
+pub enum Element {
+  Sphere(Sphere),
+  Plane(Plane),
+}
+impl Element {
+  pub fn color(&self) -> &Color {
+    match *self {
+      Element::Sphere(ref s) => &s.color,
+      Element::Plane(ref p) => &p.color,
+    }
+  }
+}
+
+
 #[derive(Deserialize, Debug)]
 pub struct Scene {
   pub width: u32,
   pub height: u32,
   pub fov: f64,
-  pub sphere: Sphere,
+  pub elements: Vec<Element>,
 }
 impl Scene {
   pub fn trace(&self, ray: &Ray) -> Option<Intersection> {
-    self.spheres
+    self.elements
       .iter()
-      .filter_map(|s| s.intersect(ray).map(|d| Intersection::new(d, s)))
+      .filter_map(|e| e.intersect(ray).map(|d| Intersection::new(d, e)))
       .min_by(|i1, i2| i1.distance.partial_cmp(&i2.distance).unwrap())
   }
 }
 
+
 pub struct Intersection<'a> {
   pub distance: f64,
-  pub object: &'a Sphere,
+  pub object: &'a Element,
+
+  _secret: (),
 }
 impl<'a> Intersection<'a> {
-  pub fn new<'b>(distance: f64, object: &'b Sphere) -> Intersection<'b> {
-    distance: distance,
-    object: object,
+  pub fn new<'b>(distance: f64, object: &'b Element) -> Intersection<'b> {
+    if !distance.is_finite() {
+      panic!("Intersection must have a finite distance.");
+    }
+    
+    Intersection {
+      distance: distance,
+      object: object,
+      _secret: (),
+    }
   }
 }

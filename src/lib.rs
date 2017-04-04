@@ -11,7 +11,7 @@ mod rendering;
 use scene::Scene;
 use image::{DynamicImage, GenericImage, ImageBuffer, Rgba};
 
-use rendering::{Ray, Intersectable, BLACK};
+use rendering::{Ray, BLACK};
 
 pub fn render(scene: &Scene) -> DynamicImage {
   let mut image = DynamicImage::new_rgb8(scene.width, scene.height);
@@ -19,10 +19,9 @@ pub fn render(scene: &Scene) -> DynamicImage {
     for y in 0..scene.height {
       let ray = Ray::create_prime(x, y, scene);
 
-      if scene.sphere.intersect(&ray) {
-        image.put_pixel(x, y, scene.sphere.color.to_rgba())
-      } else {
-        image.put_pixel(x, y, BLACK.to_rgba());
+      match scene.trace(&ray) {
+        Option::Some(intersection) => image.put_pixel(x, y, intersection.object.color().to_rgba()),
+        Option::None => image.put_pixel(x, y, BLACK.to_rgba()),
       }
     }
   }
@@ -34,10 +33,9 @@ pub fn render_into(scene: &Scene, image: &mut ImageBuffer<Rgba<u8>, &mut [u8]>) 
     for x in 0..scene.width {
       let ray = Ray::create_prime(x, y, scene);
 
-      if scene.sphere.intersect(&ray) {
-        image.put_pixel(x, y, scene.sphere.color.to_rgba())
-      } else {
-        image.put_pixel(x, y, BLACK.to_rgba());
+      match scene.trace(&ray) {
+        Option::Some(intersection) => image.put_pixel(x, y, intersection.object.color().to_rgba()),
+        Option::None => image.put_pixel(x, y, BLACK.to_rgba()),
       }
     }
   }
