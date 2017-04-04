@@ -1,6 +1,7 @@
 use point::Point;
 use vector::Vector3;
 use rendering::{Intersectable, Ray};
+use std::ops::{Mul, Add};
 use image::{Rgba, Pixel};
 
 
@@ -45,6 +46,53 @@ impl Color {
     }
   }
 }
+impl Mul for Color {
+  type Output = Color;
+
+  fn mul(self, other: Color) -> Color {
+    Color {
+      red: self.red * other.red,
+      green: self.green * other.green,
+      blue: self.blue * other.blue,
+    }
+  }
+}
+impl Mul<f32> for Color {
+  type Output = Color;
+
+  fn mul(self, other: f32) -> Color {
+    Color {
+      red: self.red * other,
+      green: self.green * other,
+      blue: self.blue * other,
+    }
+  }
+}
+impl Mul<Color> for f32 {
+  type Output = Color;
+
+  fn mul(self, other: Color) -> Color {
+    other * self
+  }
+}
+impl Add for Color {
+  type Output = Color;
+
+  fn add(self, other: Color) -> Color {
+    Color {
+      red: self.red + other.red,
+      green: self.green + other.green,
+      blue: self.blue + other.blue,
+    }
+  }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Light {
+  pub direction: Vector3,
+  pub color: Color,
+  pub intensity: f32,
+}
 
 
 #[derive(Deserialize, Debug)]
@@ -53,6 +101,7 @@ pub struct Plane {
   #[serde(deserialize_with="Vector3::deserialize_normalized")]
   pub normal: Vector3,
   pub color: Color,
+  pub albedo: f32,
 }
 
 
@@ -61,6 +110,7 @@ pub struct Sphere {
   pub center: Point,
   pub radius: f64,
   pub color: Color,
+  pub albedo: f32,
 }
 
 
@@ -76,6 +126,13 @@ impl Element {
       Element::Plane(ref p) => &p.color,
     }
   }
+
+  pub fn albedo(&self) -> f32 {
+    match *self {
+      Element::Sphere(ref s) => s.albedo,
+      Element::Plane(ref p) => p.albedo,
+    }
+  }
 }
 
 
@@ -85,6 +142,7 @@ pub struct Scene {
   pub height: u32,
   pub fov: f64,
   pub elements: Vec<Element>,
+  pub light: Light,
 }
 impl Scene {
   pub fn trace(&self, ray: &Ray) -> Option<Intersection> {
@@ -107,7 +165,7 @@ impl<'a> Intersection<'a> {
     if !distance.is_finite() {
       panic!("Intersection must have a finite distance.");
     }
-    
+
     Intersection {
       distance: distance,
       object: object,

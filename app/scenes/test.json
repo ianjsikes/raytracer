@@ -2,6 +2,20 @@
   "width": 1600,
   "height": 1200,
   "fov": 90.0,
+  "max_recursion_depth": 10,
+  "light": {
+    "direction": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": -1.0
+    },
+    "color": {
+      "red": 1.0,
+      "green": 1.0,
+      "blue": 1.0
+    },
+    "intensity": 0.0
+  },
   "elements": [
     {
       "Sphere": {
@@ -15,7 +29,8 @@
           "red": 0.2,
           "green": 1.0,
           "blue": 0.5
-        }
+        },
+        "albedo": 0.18
       }
     },
 
@@ -31,7 +46,8 @@
           "red": 1.0,
           "green": 0.7,
           "blue": 0.9
-        }
+        },
+        "albedo": 0.38
       }
     },
 
@@ -47,7 +63,8 @@
           "red": 0.4,
           "green": 0.3,
           "blue": 0.9
-        }
+        },
+        "albedo": 0.68
       }
     },
 
@@ -67,7 +84,8 @@
           "red": 0.8,
           "green": 0.5,
           "blue": 0.3
-        }
+        },
+        "albedo": 0.28
       }
     }
 

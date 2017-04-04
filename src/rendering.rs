@@ -10,6 +10,8 @@ pub struct Ray {
 
 pub trait Intersectable {
   fn intersect(&self, ray: &Ray) -> Option<f64>;
+
+  fn surface_normal(&self, hit_point: &Point) -> Vector3;
 }
 
 impl Intersectable for Element {
@@ -17,6 +19,13 @@ impl Intersectable for Element {
     match *self {
       Element::Sphere(ref s) => s.intersect(ray),
       Element::Plane(ref p) => p.intersect(ray),
+    }
+  }
+
+  fn surface_normal(&self, hit_point: &Point) -> Vector3 {
+    match *self {
+      Element::Sphere(ref s) => s.surface_normal(hit_point),
+      Element::Plane(ref p) => p.surface_normal(hit_point),
     }
   }
 }
@@ -43,6 +52,10 @@ impl Intersectable for Sphere {
     let distance = if t0 < t1 { t0 } else { t1 };
     Some(distance)
   }
+
+  fn surface_normal(&self, hit_point: &Point) -> Vector3 {
+    (*hit_point - self.center).normalize()
+  }
 }
 
 impl Intersectable for Plane {
@@ -57,6 +70,10 @@ impl Intersectable for Plane {
       }
     }
     None
+  }
+
+  fn surface_normal(&self, _: &Point) -> Vector3 {
+    -self.normal
   }
 }
 
@@ -85,3 +102,25 @@ pub const BLACK: Color = Color {
   green: 0.0,
   blue: 0.0,
 };
+
+pub fn cast_ray(scene: &Scene, ray: &Ray, depth: u32) -> Color {
+  if depth >= scene.max_recursion_depth {
+    return BLACK;
+  }
+
+  let intersection = scene.trace(&ray);
+  intersection.map(|i| get_color(scene, &ray, &i, depth))
+    .unwrap_or(BLACK)
+}
+
+// fn shade_diffuse(scene: &Scene,
+//                  element: &Element,
+//                  hit_point: Point,
+//                  surface_normal: Vector3)
+//                  -> Color {
+//   let texture_coords = element.texture_coords(&hit_point);
+//   let mut color = BLACK;
+//   for light in &scene.lights {
+//     let direction_to_light = light.direction_from(&hit_point);
+//   }
+// }
