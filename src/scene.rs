@@ -1,8 +1,12 @@
 use point::Point;
 use vector::Vector3;
-use rendering::{Intersectable, Ray};
+use rendering::{Intersectable, Ray, TextureCoords};
 use std::ops::{Mul, Add};
-use image::{Rgba, Pixel};
+use image::{Rgba, Pixel, DynamicImage, GenericImage};
+use serde::{Deserialize, Deserializer};
+use image;
+use std::fmt;
+use std::path::PathBuf;
 
 
 const GAMMA: f32 = 2.2;
@@ -142,12 +146,64 @@ pub struct SphericalLight {
 
 
 #[derive(Deserialize, Debug)]
+pub struct Material {
+  pub coloration: Coloration,
+  pub albedo: f32,
+}
+
+pub fn load_texture<D>(deserializer: D) -> Result<DynamicImage, D::Error>
+  where D: Deserializer
+{
+  let path = PathBuf::deserialize(deserializer)?;
+  Ok(image::open(path).expect("Unable to open texture file"))
+}
+
+#[derive(Deserialize)]
+pub enum Coloration {
+  Color(Color),
+  Texture(#[serde(deserialize_with="load_texture")]
+            DynamicImage),
+}
+impl fmt::Debug for Coloration {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    match *self {
+      Coloration::Color(ref c) => write!(f, "Color({:?})", c),
+      Coloration::Texture(_) => write!(f, "Texture"),
+    }
+  }
+}
+impl Coloration {
+  pub fn color(&self, texture_coords: &TextureCoords) -> Color {
+    match *self {
+      Coloration::Color(c) => c,
+      Coloration::Texture(ref texture) => {
+        let tex_x = wrap(texture_coords.x, texture.width());
+        let tex_y = wrap(texture_coords.y, texture.height());
+
+        Color::from_rgba(texture.get_pixel(tex_x, tex_y))
+      }
+    }
+  }
+}
+
+fn wrap(val: f32, bound: u32) -> u32 {
+  let signed_bound = bound as i32;
+  let float_coord = val * bound as f32;
+  let wrapped_coord = (float_coord as i32) % signed_bound;
+  if wrapped_coord < 0 {
+    (wrapped_coord + signed_bound) as u32
+  } else {
+    wrapped_coord as u32
+  }
+}
+
+
+#[derive(Deserialize, Debug)]
 pub struct Plane {
   pub origin: Point,
   #[serde(deserialize_with="Vector3::deserialize_normalized")]
   pub normal: Vector3,
-  pub color: Color,
-  pub albedo: f32,
+  pub material: Material,
 }
 
 
@@ -155,8 +211,7 @@ pub struct Plane {
 pub struct Sphere {
   pub center: Point,
   pub radius: f64,
-  pub color: Color,
-  pub albedo: f32,
+  pub material: Material,
 }
 
 
@@ -166,19 +221,19 @@ pub enum Element {
   Plane(Plane),
 }
 impl Element {
-  pub fn color(&self) -> &Color {
+  pub fn material(&self) -> &Material {
     match *self {
-      Element::Sphere(ref s) => &s.color,
-      Element::Plane(ref p) => &p.color,
+      Element::Sphere(ref s) => &s.material,
+      Element::Plane(ref p) => &p.material,
     }
   }
 
-  pub fn albedo(&self) -> f32 {
-    match *self {
-      Element::Sphere(ref s) => s.albedo,
-      Element::Plane(ref p) => p.albedo,
-    }
-  }
+  // pub fn material_mut(&mut self) -> &mut Material {
+  //   match *self {
+  //     Element::Sphere(ref s) => &mut s.material,
+  //     Element::Plane(ref p) => &mut p.material,
+  //   }
+  // }
 }
 
 

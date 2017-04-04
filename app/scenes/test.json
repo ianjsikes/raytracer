@@ -56,12 +56,16 @@
           "z": -5.0
         },
         "radius": 1.0,
-        "color": {
-          "red": 0.2,
-          "green": 1.0,
-          "blue": 0.5
-        },
-        "albedo": 0.18
+        "material": {
+          "coloration": {
+            "Color": {
+              "red": 0.2,
+              "green": 1.0,
+              "blue": 0.5
+            }
+          },
+          "albedo": 0.18
+        }
       }
     },
 
@@ -73,12 +77,16 @@
           "z": -6.0
         },
         "radius": 2.0,
-        "color": {
-          "red": 1.0,
-          "green": 0.4,
-          "blue": 0.5
-        },
-        "albedo": 0.38
+        "material": {
+          "coloration": {
+            "Color": {
+              "red": 0.2,
+              "green": 1.0,
+              "blue": 0.5
+            }
+          },
+          "albedo": 0.18
+        }
       }
     },
 
@@ -90,12 +98,12 @@
           "z": -4.6
         },
         "radius": 1.8,
-        "color": {
-          "red": 0.2,
-          "green": 0.1,
-          "blue": 0.9
-        },
-        "albedo": 0.68
+        "material": {
+          "coloration": {
+            "Texture": "scenes/checkerboard.png"
+          },
+          "albedo": 0.18
+        }
       }
     },
 
@@ -111,12 +119,12 @@
           "y": -1.0,
           "z": 0.0
         },
-        "color": {
-          "red": 0.8,
-          "green": 0.5,
-          "blue": 0.3
-        },
-        "albedo": 0.28
+        "material": {
+          "coloration": {
+            "Texture": "scenes/nic_cage.jpg"
+          },
+          "albedo": 0.18
+        }
       }
     }
 

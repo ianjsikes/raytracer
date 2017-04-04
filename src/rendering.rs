@@ -9,10 +9,17 @@ pub struct Ray {
   pub direction: Vector3,
 }
 
+#[derive(Debug)]
+pub struct TextureCoords {
+  pub x: f32,
+  pub y: f32,
+}
+
 pub trait Intersectable {
   fn intersect(&self, ray: &Ray) -> Option<f64>;
 
   fn surface_normal(&self, hit_point: &Point) -> Vector3;
+  fn texture_coords(&self, hit_point: &Point) -> TextureCoords;
 }
 
 impl Intersectable for Element {
@@ -27,6 +34,13 @@ impl Intersectable for Element {
     match *self {
       Element::Sphere(ref s) => s.surface_normal(hit_point),
       Element::Plane(ref p) => p.surface_normal(hit_point),
+    }
+  }
+
+  fn texture_coords(&self, hit_point: &Point) -> TextureCoords {
+    match *self {
+      Element::Sphere(ref s) => s.texture_coords(hit_point),
+      Element::Plane(ref p) => p.texture_coords(hit_point),
     }
   }
 }
@@ -57,6 +71,14 @@ impl Intersectable for Sphere {
   fn surface_normal(&self, hit_point: &Point) -> Vector3 {
     (*hit_point - self.center).normalize()
   }
+
+  fn texture_coords(&self, hit_point: &Point) -> TextureCoords {
+    let hit_vec = *hit_point - self.center;
+    TextureCoords {
+      x: (1.0 + (hit_vec.z.atan2(hit_vec.x) as f32) / PI) * 0.5,
+      y: (hit_vec.y / self.radius).acos() as f32 / PI,
+    }
+  }
 }
 
 impl Intersectable for Plane {
@@ -75,6 +97,28 @@ impl Intersectable for Plane {
 
   fn surface_normal(&self, _: &Point) -> Vector3 {
     -self.normal
+  }
+
+  fn texture_coords(&self, hit_point: &Point) -> TextureCoords {
+    let mut x_axis = self.normal.cross(&Vector3 {
+      x: 0.0,
+      y: 0.0,
+      z: 1.0,
+    });
+    if x_axis.length() == 0.0 {
+      x_axis = self.normal.cross(&Vector3 {
+        x: 0.0,
+        y: 1.0,
+        z: 0.0,
+      });
+    }
+    let y_axis = self.normal.cross(&x_axis);
+    let hit_vec = *hit_point - self.origin;
+
+    TextureCoords {
+      x: hit_vec.dot(&x_axis) as f32,
+      y: hit_vec.dot(&y_axis) as f32,
+    }
   }
 }
 
@@ -122,9 +166,10 @@ pub fn cast_ray(scene: &Scene, ray: &Ray, depth: u32) -> Color {
 // }
 
 fn get_color(scene: &Scene, ray: &Ray, intersection: &Intersection) -> Color {
+  let hit_point = ray.origin + (ray.direction * intersection.distance);
+  let texture_coords = intersection.object.texture_coords(&hit_point);
   let mut color = BLACK;
   for light in &scene.lights {
-    let hit_point = ray.origin + (ray.direction * intersection.distance);
     let surface_normal = intersection.object.surface_normal(&hit_point);
     let direction_to_light = light.direction_from(&hit_point);
 
@@ -143,10 +188,11 @@ fn get_color(scene: &Scene, ray: &Ray, intersection: &Intersection) -> Color {
     };
     let light_power = (surface_normal.dot(&direction_to_light) as f32).max(0.0) *
                       light_intensity;
-    let light_reflected = intersection.object.albedo() / PI;
+    let material = intersection.object.material();
+    let light_reflected = material.albedo / PI;
 
-    let light_color = intersection.object.color().clone() * light.color() * light_power * light_reflected;
-    color = color + light_color;
+    let light_color = light.color() * light_power * light_reflected;
+    color = color + (material.coloration.color(&texture_coords) * light_color);
   }
   color.clamp()
 }
