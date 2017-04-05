@@ -96,7 +96,7 @@ elements:
         z: 0.0
       material: 
         coloration: 
-          Texture: "scenes/nic_cage.jpg"
+          Texture: "scenes/stone.jpg"
         albedo: 0.18
         surface: Diffuse
   
