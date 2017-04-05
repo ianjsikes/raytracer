@@ -9,6 +9,10 @@ use std::fmt;
 use std::path::PathBuf;
 
 
+// 
+// COLOR
+//
+
 const GAMMA: f32 = 2.2;
 
 fn gamma_encode(linear: f32) -> f32 {
@@ -18,7 +22,6 @@ fn gamma_encode(linear: f32) -> f32 {
 fn gamma_decode(encoded: f32) -> f32 {
   encoded.powf(GAMMA)
 }
-
 
 #[derive(Deserialize, Debug, Clone, Copy)]
 pub struct Color {
@@ -91,6 +94,11 @@ impl Add for Color {
   }
 }
 
+
+//
+// LIGHT
+//
+
 #[derive(Deserialize, Debug)]
 pub enum Light {
   Directional(DirectionalLight),
@@ -145,10 +153,22 @@ pub struct SphericalLight {
 }
 
 
+//
+// MATERIAL
+//
+
+#[derive(Deserialize, Debug)]
+pub enum SurfaceType {
+  Diffuse,
+  Reflective { reflectivity: f32 },
+  Refractive { index: f32, transparency: f32 },
+}
+
 #[derive(Deserialize, Debug)]
 pub struct Material {
   pub coloration: Coloration,
   pub albedo: f32,
+  pub surface: SurfaceType,
 }
 
 pub fn load_texture<D>(deserializer: D) -> Result<DynamicImage, D::Error>
@@ -198,6 +218,10 @@ fn wrap(val: f32, bound: u32) -> u32 {
 }
 
 
+//
+// ELEMENTS
+//
+
 #[derive(Deserialize, Debug)]
 pub struct Plane {
   pub origin: Point,
@@ -237,6 +261,10 @@ impl Element {
 }
 
 
+//
+// SCENE
+//
+
 #[derive(Deserialize, Debug)]
 pub struct Scene {
   pub width: u32,
@@ -256,6 +284,10 @@ impl Scene {
   }
 }
 
+
+//
+// INTERSECTION
+//
 
 pub struct Intersection<'a> {
   pub distance: f64,

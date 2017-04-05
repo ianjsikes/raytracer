@@ -47,10 +47,11 @@ elements:
       material: 
         coloration: 
           Color: 
-            red: 0.2
-            green: 1.0
+            red: 1.0
+            green: 0.6
             blue: 0.5
         albedo: 0.18
+        surface: Diffuse
 
   - Sphere: 
       center: 
@@ -64,7 +65,10 @@ elements:
             red: 0.2
             green: 1.0
             blue: 0.5
-        albedo: 0.18
+        albedo: 0.9
+        surface:
+          Reflective:
+            reflectivity: 0.8
 
   - Sphere: 
       center: 
@@ -76,6 +80,9 @@ elements:
         coloration: 
           Texture: "scenes/checkerboard.png"
         albedo: 0.18
+        surface:
+          Reflective:
+            reflectivity: 0.2
 
   - Plane: 
       origin: 
@@ -90,3 +97,4 @@ elements:
         coloration: 
           Texture: "scenes/nic_cage.jpg"
         albedo: 0.18
+        surface: Diffuse

@@ -1,6 +1,6 @@
 use point::Point;
 use vector::Vector3;
-use scene::{Scene, Element, Sphere, Plane, Color, Intersection};
+use scene::{Scene, Element, Sphere, Plane, Color, Intersection, SurfaceType};
 use std::f32::consts::PI;
 
 #[derive(Debug)]
@@ -140,6 +140,49 @@ impl Ray {
       .normalize(),
     }
   }
+
+  pub fn create_reflection(normal: Vector3,
+                           incident: Vector3,
+                           intersection: Point,
+                           bias: f64)
+                           -> Ray {
+    Ray {
+      origin: intersection + (normal * bias),
+      direction: incident - (2.0 * incident.dot(&normal) * normal),
+    }
+  }
+
+  pub fn create_transmission(normal: Vector3,
+                             incident: Vector3,
+                             intersection: Point,
+                             bias: f64,
+                             index: f32)
+                             -> Option<Ray> {
+    let mut ref_n = normal;
+    let mut eta_t = index as f64;
+    let mut eta_i = 1.0;
+    let mut i_dot_n = incident.dot(&normal);
+    if i_dot_n < 0.0 {
+      // Outside the surface
+      i_dot_n = -i_dot_n;
+    } else {
+      // Inside the surface; invert the normal and swap the indices of refraction
+      ref_n = -normal;
+      eta_i = eta_t;
+      eta_t = 1.0;
+    }
+
+    let eta = eta_i / eta_t;
+    let k = 1.0 - (eta * eta) * (1.0 - i_dot_n * i_dot_n);
+    if k < 0.0 {
+      None
+    } else {
+      Some(Ray {
+        origin: intersection + (ref_n * bias),
+        direction: (incident + i_dot_n * ref_n) * eta - ref_n * k.sqrt(),
+      })
+    }
+  }
 }
 
 pub const BLACK: Color = Color {
@@ -154,23 +197,33 @@ pub fn cast_ray(scene: &Scene, ray: &Ray, depth: u32) -> Color {
   }
 
   let intersection = scene.trace(&ray);
-  intersection.map(|i| get_color(scene, &ray, &i))
+  intersection.map(|i| get_color(scene, &ray, &i, depth))
     .unwrap_or(BLACK)
 }
 
-// fn get_color(scene: &Scene, ray: &Ray, intersection: &Intersection, depth: u32) -> Color {
-//   let hit = ray.origin + (ray.direction * intersection.distance);
-//   let normal = intersection.object.surface_normal(&hit);
-
-//   shade_diffuse(scene, intersection.object, hit, normal)
-// }
-
-fn get_color(scene: &Scene, ray: &Ray, intersection: &Intersection) -> Color {
+fn get_color(scene: &Scene, ray: &Ray, intersection: &Intersection, depth: u32) -> Color {
   let hit_point = ray.origin + (ray.direction * intersection.distance);
-  let texture_coords = intersection.object.texture_coords(&hit_point);
+  let surface_normal = intersection.object.surface_normal(&hit_point);
+
+  let mut color = shade_diffuse(scene, intersection.object, hit_point, surface_normal);
+
+  if let SurfaceType::Reflective { reflectivity } = intersection.object.material().surface {
+    let reflection_ray =
+      Ray::create_reflection(surface_normal, ray.direction, hit_point, scene.shadow_bias);
+    color = color * (1.0 - reflectivity);
+    color = color + (cast_ray(scene, &reflection_ray, depth + 1) * reflectivity);
+  }
+  color
+}
+
+fn shade_diffuse(scene: &Scene,
+                 element: &Element,
+                 hit_point: Point,
+                 surface_normal: Vector3)
+                 -> Color {
+  let texture_coords = element.texture_coords(&hit_point);
   let mut color = BLACK;
   for light in &scene.lights {
-    let surface_normal = intersection.object.surface_normal(&hit_point);
     let direction_to_light = light.direction_from(&hit_point);
 
     let shadow_ray = Ray {
@@ -180,15 +233,15 @@ fn get_color(scene: &Scene, ray: &Ray, intersection: &Intersection) -> Color {
     let shadow_intersection = scene.trace(&shadow_ray);
     let in_light = shadow_intersection.is_none() ||
                    shadow_intersection.unwrap().distance > light.distance(&hit_point);
-
+    
     let light_intensity = if in_light {
       light.intensity(&hit_point)
     } else {
       0.0
     };
+    let material = element.material();
     let light_power = (surface_normal.dot(&direction_to_light) as f32).max(0.0) *
                       light_intensity;
-    let material = intersection.object.material();
     let light_reflected = material.albedo / PI;
 
     let light_color = light.color() * light_power * light_reflected;
@@ -196,35 +249,3 @@ fn get_color(scene: &Scene, ray: &Ray, intersection: &Intersection) -> Color {
   }
   color.clamp()
 }
-
-// fn shade_diffuse(scene: &Scene,
-//                  element: &Element,
-//                  hit_point: Point,
-//                  surface_normal: Vector3)
-//                  -> Color {
-//   // let texture_coords = element.texture_coords(&hit_point);
-//   let mut color = BLACK;
-//   for light in &scene.lights {
-//     let direction_to_light = light.direction_from(&hit_point);
-
-//     let shadow_ray = Ray {
-//       origin: hit_point + (surface_normal * scene.shadow_bias),
-//       direction: direction_to_light,
-//     };
-//     let shadow_intersection = scene.trace(&shadow_ray);
-//     let in_light = shadow_intersection.is_none() ||
-//                    shadow_intersection.unwrap().distance > light.distance(&hit_point);
-    
-//     let light_intensity = if in_light {
-//       light.intensity(&hit_point)
-//     } else {
-//       0.0
-//     };
-//     let light_power = (surface_normal.dot(&direction_to_light) as f32).max(0.0) * light_intensity;
-//     let light_reflected = element.albedo() / ::std::f32::consts::PI;
-
-//     let light_color = light.color * light_power * light_reflected;
-//     color = color + light_color;
-//   }
-//   color.clamp()
-// }
