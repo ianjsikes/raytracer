@@ -1,0 +1,92 @@
+width: 800
+height: 600
+fov: 90
+max_recursion_depth: 10
+shadow_bias: 0.000001
+lights: 
+  - Directional:
+      direction:
+        x: 0.0
+        y: -0.4
+        z: -1.0
+      color: 
+        red: 1.0
+        green: 1.0
+        blue: 1.0
+      intensity: 10.0
+
+  - Directional: 
+      direction: 
+        x: 0.4
+        y: -0.2
+        z: -1.0
+      color: 
+        red: 1.0
+        green: 0.6
+        blue: 0.4
+      intensity: 3.0
+
+  - Spherical: 
+      position: 
+        x: 1.0
+        y: 0.0
+        z: -3.7
+      color: 
+        red: 0.2
+        green: 0.9
+        blue: 0.4
+      intensity: 150
+
+elements:
+  - Sphere: 
+      center: 
+        x: 0.0
+        y: 0.5
+        z: -5.0
+      radius: 1.0
+      material: 
+        coloration: 
+          Color: 
+            red: 0.2
+            green: 1.0
+            blue: 0.5
+        albedo: 0.18
+
+  - Sphere: 
+      center: 
+        x: -3.0
+        y: 1.0
+        z: -6.0
+      radius: 2.0
+      material: 
+        coloration: 
+          Color: 
+            red: 0.2
+            green: 1.0
+            blue: 0.5
+        albedo: 0.18
+
+  - Sphere: 
+      center: 
+        x: 2.0
+        y: 2.0
+        z: -4.6
+      radius: 1.8
+      material: 
+        coloration: 
+          Texture: "scenes/checkerboard.png"
+        albedo: 0.18
+
+  - Plane: 
+      origin: 
+        x: 0.0
+        y: -2.0
+        z: -8.0
+      normal: 
+        x: 0.2
+        y: -1.0
+        z: 0.0
+      material: 
+        coloration: 
+          Texture: "scenes/nic_cage.jpg"
+        albedo: 0.18

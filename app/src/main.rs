@@ -1,6 +1,7 @@
 extern crate clap;
 extern crate serde;
 extern crate serde_json;
+extern crate serde_yaml;
 extern crate raytracer;
 extern crate image;
 
@@ -30,7 +31,13 @@ fn main() {
 
   let image_path = matches.value_of("image").unwrap();
 
-  let scene: Scene = serde_json::from_reader(scene_file).unwrap();
+  let scene: Scene = if scene_path.ends_with(".yml") || scene_path.ends_with(".yaml") {
+    serde_yaml::from_reader(scene_file).unwrap()
+  } else if scene_path.ends_with(".json") {
+    serde_json::from_reader(scene_file).unwrap()
+  } else {
+    panic!("Invalid scene file type! Must be .json, .yml, or .yaml");
+  };
 
   let image = raytracer::render(&scene);
 

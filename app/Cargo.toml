@@ -7,5 +7,6 @@ authors = ["Ian Sikes <ianjsikes@gmail.com", "Brook Heisler <redattack34@gmail.c
 raytracer = { path = ".." }
 serde = "0.9.7"
 serde_json = "0.9.6"
+serde_yaml = "0.6"
 clap = "2.20"
 image = "0.12.3"
