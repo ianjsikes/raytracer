@@ -99,3 +99,21 @@ elements:
           Texture: "scenes/nic_cage.jpg"
         albedo: 0.18
         surface: Diffuse
+  
+  - Plane:
+      origin:
+        x: 0.0
+        y: 0.0
+        z: -20.0
+      normal:
+        x: 0.0
+        y: 0.0
+        z: -1.0
+      material:
+        coloration:
+          Color:
+            red: 0.2
+            green: 0.3
+            blue: 1.0
+        albedo: 0.38
+        surface: Diffuse

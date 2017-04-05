@@ -1,0 +1,176 @@
+width: 800
+height: 600
+fov: 90
+max_recursion_depth: 10
+shadow_bias: 0.000001
+lights: 
+  - Directional:
+      direction:
+        x: -0.4
+        y: -0.8
+        z: -2.0
+      color: 
+        red: 1.0
+        green: 0.8
+        blue: 0.7
+      intensity: 8.0
+
+  - Directional: 
+      direction: 
+        x: 0.4
+        y: -0.8
+        z: -2.0
+      color: 
+        red: 1.0
+        green: 1.0
+        blue: 0.8
+      intensity: 6.0
+
+  - Spherical: 
+      position: 
+        x: 1.0
+        y: 0.0
+        z: -3.7
+      color: 
+        red: 0.2
+        green: 0.9
+        blue: 0.4
+      intensity: 150
+
+elements:
+  - Sphere: 
+      center: 
+        x: 0.0
+        y: 0.5
+        z: -5.0
+      radius: 1.0
+      material: 
+        coloration: 
+          Color: 
+            red: 1.0
+            green: 0.6
+            blue: 0.5
+        albedo: 0.18
+        surface:
+          Refractive:
+            index: 5
+            transparency: 1.0
+
+  - Sphere: 
+      center: 
+        x: -3.0
+        y: -3.0
+        z: -10.0
+      radius: 2.0
+      material: 
+        coloration: 
+          Color: 
+            red: 0.2
+            green: 1.0
+            blue: 0.5
+        albedo: 0.9
+        surface:
+          Refractive:
+            index: 1.5
+            transparency: 1.0
+
+  - Sphere: 
+      center: 
+        x: 8.0
+        y: -6
+        z: -12
+      radius: 4
+      material: 
+        coloration: 
+          Texture: "scenes/checkerboard.png"
+        albedo: 0.18
+        surface: Diffuse
+  # - Sphere: 
+  #     center: 
+  #       x: 2.0
+  #       y: 2.0
+  #       z: -4.6
+  #     radius: 1.8
+  #     material: 
+  #       coloration: 
+  #         Texture: "scenes/checkerboard.png"
+  #       albedo: 0.18
+  #       surface:
+  #         Reflective:
+  #           reflectivity: 0.8
+  
+  # Floor
+  - Plane: 
+      origin: 
+        x: 0
+        y: -6
+        z: 0
+      normal: 
+        x: 0
+        y: -1
+        z: 0
+      material: 
+        coloration: 
+          Color:
+            red: 1.0
+            green: 1.0
+            blue: 1.0
+        albedo: 0.18
+        surface: Diffuse
+  
+  # Back Wall
+  - Plane:
+      origin:
+        x: 0
+        y: 0
+        z: -25
+      normal:
+        x: 0
+        y: 0
+        z: -1
+      material: 
+        coloration: 
+          Color: 
+            red: 1.0
+            green: 1.0
+            blue: 1.0
+        albedo: 0.18
+        surface: Diffuse
+  
+  # Left Wall
+  - Plane:
+      origin:
+        x: -25.0
+        y: 0.0
+        z: 0.0
+      normal:
+        x: -1.0
+        y: 0.0
+        z: -0.3
+      material: 
+        coloration: 
+          Color: 
+            red: 1.0
+            green: 0.3
+            blue: 0.3
+        albedo: 0.38
+        surface: Diffuse
+  
+  # Right Wall
+  - Plane:
+      origin:
+        x: 25.0
+        y: 0.0
+        z: 0.0
+      normal:
+        x: 1.0
+        y: 0.0
+        z: -0.3
+      material:
+        coloration:
+          Color:
+            red: 1.0
+            green: 0.3
+            blue: 0.3
+        albedo: 0.38
+        surface: Diffuse
