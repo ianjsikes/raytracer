@@ -67,8 +67,9 @@ elements:
             blue: 0.5
         albedo: 0.9
         surface:
-          Reflective:
-            reflectivity: 0.8
+          Refractive:
+            index: 1.5
+            transparency: 1.0
 
   - Sphere: 
       center: 
@@ -82,7 +83,7 @@ elements:
         albedo: 0.18
         surface:
           Reflective:
-            reflectivity: 0.2
+            reflectivity: 0.8
 
   - Plane: 
       origin: 

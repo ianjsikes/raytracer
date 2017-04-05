@@ -291,19 +291,19 @@ impl Scene {
 
 pub struct Intersection<'a> {
   pub distance: f64,
-  pub object: &'a Element,
+  pub element: &'a Element,
 
   _secret: (),
 }
 impl<'a> Intersection<'a> {
-  pub fn new<'b>(distance: f64, object: &'b Element) -> Intersection<'b> {
+  pub fn new<'b>(distance: f64, element: &'b Element) -> Intersection<'b> {
     if !distance.is_finite() {
       panic!("Intersection must have a finite distance.");
     }
 
     Intersection {
       distance: distance,
-      object: object,
+      element: element,
       _secret: (),
     }
   }
